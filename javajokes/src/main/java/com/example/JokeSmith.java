@@ -2,6 +2,6 @@ package com.example;
 
 public class JokeSmith {
     public String tellAHandCraftedJoke(){
-        return "A hand-crafted joke";
+        return "What is a physicist's favourite food? Fission chips.";
     }
 }
