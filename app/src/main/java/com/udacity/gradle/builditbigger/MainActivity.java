@@ -1,15 +1,21 @@
 package com.udacity.gradle.builditbigger;
 
+import android.content.Context;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.example.JokeSmith;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 
+import net.catsonmars.android.app.backend.myApi.MyApi;
 import net.catsonmars.android.displayjoke.JokeActivity;
+
+import java.io.IOException;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -44,13 +50,37 @@ public class MainActivity extends ActionBarActivity {
     }
 
     public void tellJoke(View view){
-        JokeSmith jokeSmith = new JokeSmith();
+        new EndpointsAsyncTask().execute(this);
+    }
 
-//        Toast.makeText(this, jokeSmith.tellAHandCraftedJoke(), Toast.LENGTH_SHORT).show();
+    class EndpointsAsyncTask extends AsyncTask<Context, Void, String> {
+        private MyApi myApiService = null;
+        private Context context;
 
-        Intent intent = new Intent(this, JokeActivity.class);
-        String joke = jokeSmith.tellAHandCraftedJoke();
-        intent.putExtra(JokeActivity.JOKE_KEY, joke);
-        startActivity(intent);
+        @Override
+        protected String doInBackground(Context... params) {
+            if (myApiService == null) {
+                MyApi.Builder builder = new MyApi.Builder(AndroidHttp.newCompatibleTransport(),
+                        new AndroidJsonFactory(), null)
+                        .setRootUrl("https://javajokesserver.appspot.com/_ah/api/");
+
+                myApiService = builder.build();
+            }
+
+            context = params[0];
+
+            try {
+                return myApiService.tellJoke().execute().getData();
+            } catch (IOException e) {
+                return e.getMessage();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            Intent intent = new Intent(context, JokeActivity.class);
+            intent.putExtra(JokeActivity.JOKE_KEY, result);
+            startActivity(intent);
+        }
     }
 }
