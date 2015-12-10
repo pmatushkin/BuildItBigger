@@ -5,7 +5,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'com.android.tools.build:gradle:1.5.0'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -17,3 +17,22 @@ allprojects {
         jcenter()
     }
 }
+
+// http://stackoverflow.com/questions/31434928/android-gradle-task-google-appengine
+task runAppEngine (dependsOn: ":backend:appengineRun") {
+    project(":backend").afterEvaluate { backend ->
+        backend.extensions.appengine.daemon = true
+    }
+    doLast {
+        println "started the server!"
+    }
+}
+
+task runConnectedTest (dependsOn: ":app:connectedAndroidTest") {
+    doLast {
+        println "connected test completed!"
+    }
+}
+
+runAppEngine.finalizedBy "runConnectedTest"
+runConnectedTest.finalizedBy ":backend:appengineStop"
