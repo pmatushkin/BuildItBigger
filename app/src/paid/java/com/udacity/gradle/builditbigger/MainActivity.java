@@ -6,16 +6,21 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 
 import net.catsonmars.android.displayjoke.JokeActivity;
 
 
 public class MainActivity extends ActionBarActivity implements IAsyncResponse {
+    private ProgressBar spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        spinner = (ProgressBar)findViewById(R.id.progressBar1);
+        spinner.setVisibility(View.GONE);
     }
 
 
@@ -42,12 +47,16 @@ public class MainActivity extends ActionBarActivity implements IAsyncResponse {
     }
 
     public void tellJoke(View view){
+        spinner.setVisibility(View.VISIBLE);
+
         EndpointsAsyncTask2 asyncTask = new EndpointsAsyncTask2(this);
         asyncTask.execute();
     }
 
     @Override
     public void processFinish(String output) {
+        spinner.setVisibility(View.GONE);
+
         Intent intent = new Intent(this, JokeActivity.class);
         intent.putExtra(JokeActivity.JOKE_KEY, output);
         startActivity(intent);
