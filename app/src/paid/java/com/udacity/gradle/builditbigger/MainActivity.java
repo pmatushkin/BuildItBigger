@@ -6,21 +6,27 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 
 import net.catsonmars.android.displayjoke.JokeActivity;
 
 
 public class MainActivity extends ActionBarActivity implements IAsyncResponse {
-    private ProgressBar spinner;
+    private ProgressBar mSpinner;
+    private Button mTellJokeButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        spinner = (ProgressBar)findViewById(R.id.progressBar1);
-        spinner.setVisibility(View.GONE);
+        // initialize a progress bar
+        mSpinner = (ProgressBar)findViewById(R.id.progressBar1);
+        mSpinner.setVisibility(View.GONE);
+
+        // initialize a button
+        mTellJokeButton = (Button) findViewById(R.id.buttonTellJoke);
     }
 
 
@@ -47,7 +53,8 @@ public class MainActivity extends ActionBarActivity implements IAsyncResponse {
     }
 
     public void tellJoke(View view){
-        spinner.setVisibility(View.VISIBLE);
+        mTellJokeButton.setEnabled(false);
+        mSpinner.setVisibility(View.VISIBLE);
 
         EndpointsAsyncTask2 asyncTask = new EndpointsAsyncTask2(this);
         asyncTask.execute();
@@ -55,10 +62,12 @@ public class MainActivity extends ActionBarActivity implements IAsyncResponse {
 
     @Override
     public void processFinish(String output) {
-        spinner.setVisibility(View.GONE);
+        mSpinner.setVisibility(View.GONE);
 
         Intent intent = new Intent(this, JokeActivity.class);
         intent.putExtra(JokeActivity.JOKE_KEY, output);
         startActivity(intent);
+
+        mTellJokeButton.setEnabled(true);
     }
 }
